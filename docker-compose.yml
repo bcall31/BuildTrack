@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+  sql:
+    image: mcr.microsoft.com/mssql/server:latest
+    container_name: buildtrack_db
+    restart: always
+    ports:
+      - "1433:1433"
+    expose:
+      - "1433"
+    environment:
+      SA_PASSWORD: ${SA_PASSWORD}
+      ACCEPT_EULA: "Y"
+    volumes:
+      - sql_data:/var/opt/mssql
+
+  app:
+    build: ./app
+    container_name: buildtrack_app
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mssql://sa:${SA_PASSWORD}@sql:1433/mydatabase
+    depends_on:
+      - sql
+    command: ["sh", "-c", "until nc -z sql 1433; do sleep 1; done && exec uvicorn app:app --host 0.0.0.0 --port 8000"]
+
+  ghi:
+    build: ./buildtrack
+    container_name: buildtrack_ghi
+    working_dir: /app
+    volumes:
+      - ./buildtrack:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - app
+    environment:
+      HOST_OS: ${OS}
+      NODE_ENV: development
+      HOST: "0.0.0.0"
+      PUBLIC_URL: ${PUBLIC_URL}
+      REACT_APP_API_HOST: ${REACT_APP_API_HOST}
+    restart: always
+
+volumes:
+  sql_data:
+    driver: local
