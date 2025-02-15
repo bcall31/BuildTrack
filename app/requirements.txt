@@ -2,3 +2,9 @@ fastapi
 uvicorn
 gunicorn
 pydantic
+sqlalchemy
+python-dotenv
+pyodbc
+bcrypt
+pyjwt
+pymssql
