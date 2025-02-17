@@ -1,9 +1,10 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from router import login
-from core.db import Base, engine
+from fastapi import FastAPI #type: ignore
+from fastapi.middleware.cors import CORSMiddleware #type: ignore
+from router import account, auth, user
+from core.db import InitDB
 
 import os
+
 
 app = FastAPI(
     title="BuildTrack API",
@@ -12,8 +13,13 @@ app = FastAPI(
     openapi_url='/openapi.json',
     root_path='/'
 )
+@app.on_event("startup")
+def on_startup():
+    InitDB() 
 
-app.include_router(login.router)
+app.include_router(account.router, tags=["Login and Registration"])
+app.include_router(auth.router, tags=["Authentication"])
+app.include_router(user.router, tags=["User Management"])
 
 
 app.add_middleware(

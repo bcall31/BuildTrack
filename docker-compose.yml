@@ -19,7 +19,7 @@ services:
   app:
     environment:
       CORS_HOST: ${PUBLIC_URL}
-      DATABASE_URL: "mssql+pymssql://sa:${SA_PASSWORD}@172.23.0.4:1433/buildtrack"
+      DATABASE_URL: "mssql+pymssql://sa:${SA_PASSWORD}@sql:1433/buildtrack"
     build:
       context: app
     ports:
@@ -28,6 +28,8 @@ services:
     volumes:
       - ./app:/app
     restart: always
+    depends_on:
+      - sql
 
 
   ghi:
